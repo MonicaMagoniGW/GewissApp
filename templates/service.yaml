@@ -1,0 +1,22 @@
+{{- if .Values.app.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "gwapp.fullname" . }}
+  namespace: {{ include "gwapp.namespace" . }}
+  labels:
+    {{- include "gwapp.labels" . | nindent 4 }}
+  {{- with .Values.app.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.app.service.type }}
+  selector:
+    {{- include "gwapp.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.app.service.port }}
+      targetPort: {{ .Values.app.service.targetPort }}
+      protocol: TCP
+{{- end }}

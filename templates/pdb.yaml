@@ -1,0 +1,18 @@
+{{- if .Values.app.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "gwapp.fullname" . }}
+  namespace: {{ include "gwapp.namespace" . }}
+  labels:
+    {{- include "gwapp.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "gwapp.selectorLabels" . | nindent 6 }}
+  {{- if ne .Values.app.pdb.minAvailable nil }}
+  minAvailable: {{ .Values.app.pdb.minAvailable }}
+  {{- else if ne .Values.app.pdb.maxUnavailable nil }}
+  maxUnavailable: {{ .Values.app.pdb.maxUnavailable }}
+  {{- end }}
+{{- end }}

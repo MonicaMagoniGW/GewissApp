@@ -1,0 +1,21 @@
+{{- if .Values.app.configMap.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "gwapp.configMapName" . }}
+  namespace: {{ include "gwapp.namespace" . }}
+  labels:
+    {{- include "gwapp.labels" . | nindent 4 }}
+  {{- with .Values.app.configMap.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- with .Values.app.configMap.data }}
+data:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- with .Values.app.configMap.binaryData }}
+binaryData:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end }}

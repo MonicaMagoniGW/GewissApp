@@ -1,0 +1,17 @@
+app:
+  replicaCount: 2
+
+  image:
+    repository: nginx
+    pullSecrets: gewissit-pull
+
+  serviceAccount:
+    create: true
+
+  containerPort: 8080
+
+  service:
+    enabled: true
+    type: ClusterIP
+    port: 80
+    targetPort: http

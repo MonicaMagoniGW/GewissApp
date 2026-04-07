@@ -1,0 +1,7 @@
+{{- if .Values.app.service.enabled }}
+1. The application Service has been created as `{{ include "gwapp.fullname" . }}`.
+2. Check the rendered objects with:
+   kubectl get deploy,svc,pdb,hpa -n {{ .Release.Namespace }}
+{{- else }}
+The Deployment has been created without a Service.
+{{- end }}

@@ -1,0 +1,28 @@
+app:
+  image:
+    repository: ghcr.io/your-org/orders-api
+    tag: "1.4.2"
+
+  containerPort: 8080
+
+  service:
+    port: 80
+
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 75
+    targetMemoryUtilizationPercentage: 80
+
+  pdb:
+    enabled: true
+    minAvailable: 1

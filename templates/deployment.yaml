@@ -1,0 +1,138 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gwapp.fullname" . }}
+  namespace: {{ include "gwapp.namespace" . }}
+  labels:
+    {{- include "gwapp.labels" . | nindent 4 }}
+  {{- with .Values.app.deploymentAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if not .Values.app.autoscaling.enabled }}
+  replicas: {{ .Values.app.replicaCount }}
+  {{- end }}
+  revisionHistoryLimit: {{ .Values.app.revisionHistoryLimit | default 3 }}
+  selector:
+    matchLabels:
+      {{- include "gwapp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "gwapp.selectorLabels" . | nindent 8 }}
+        {{- with .Values.app.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- if or .Values.app.configMap.enabled .Values.app.podAnnotations }}
+      annotations:
+        {{- if .Values.app.configMap.enabled }}
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- end }}
+        {{- with .Values.app.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "gwapp.serviceAccountName" . }}
+      {{- with .Values.app.image.pullSecrets }}
+      imagePullSecrets:
+        {{- range . }}
+        - name: {{ . }}
+        {{- end }}
+      {{- end }}
+      {{- with .Values.app.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ include "gwapp.name" . }}
+          image: {{ include "gwapp.image" . }}
+          imagePullPolicy: {{ .Values.app.image.pullPolicy | default "IfNotPresent" }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.app.containerPort }}
+              protocol: TCP
+          {{- with .Values.app.command }}
+          command:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.app.args }}
+          args:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.app.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if or .Values.app.configMap.mount.enabled .Values.app.volumeMounts }}
+          volumeMounts:
+            {{- if .Values.app.configMap.mount.enabled }}
+            - name: app-config
+              mountPath: {{ .Values.app.configMap.mount.path }}
+              readOnly: {{ .Values.app.configMap.mount.readOnly }}
+            {{- end }}
+            {{- with .Values.app.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- end }}
+          {{- if .Values.app.env }}
+          env:
+            {{- toYaml .Values.app.env | nindent 12 }}
+          {{- end }}
+          {{- if or .Values.app.configMap.envFrom .Values.app.envFrom }}
+          envFrom:
+            {{- if .Values.app.configMap.envFrom }}
+            - configMapRef:
+                name: {{ include "gwapp.configMapName" . }}
+            {{- end }}
+            {{- with .Values.app.envFrom }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.app.probes.liveness }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.app.probes.readiness }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.app.probes.startup }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.app.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- if or .Values.app.configMap.mount.enabled .Values.app.volumes }}
+      volumes:
+        {{- if .Values.app.configMap.mount.enabled }}
+        - name: app-config
+          configMap:
+            name: {{ include "gwapp.configMapName" . }}
+        {{- end }}
+        {{- with .Values.app.volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- with .Values.app.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.app.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.app.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      topologySpreadConstraints:
+        - maxSkew: {{ .Values.app.topologySpreadConstraints.maxSkew | default 1 }}
+          topologyKey: {{ .Values.app.topologySpreadConstraints.topologyKey | default "kubernetes.io/hostname" }}
+          whenUnsatisfiable: {{ .Values.app.topologySpreadConstraints.whenUnsatisfiable | default "ScheduleAnyway" }}
+          labelSelector:
+            matchLabels:
+              {{- include "gwapp.selectorLabels" . | nindent 14 }}

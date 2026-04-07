@@ -1,0 +1,29 @@
+app:
+  image:
+    repository: ghcr.io/your-org/orders-api
+    tag: "1.4.2"
+
+  replicaCount: 2
+  containerPort: 8080
+
+  env:
+    - name: ASPNETCORE_URLS
+      value: http://+:8080
+
+  envFrom:
+    - secretRef:
+        name: orders-api-secrets
+
+  configMap:
+    enabled: true
+    envFrom: true
+    data:
+      APP_ENV: production
+      LOG_LEVEL: info
+
+  service:
+    port: 80
+
+  pdb:
+    enabled: true
+    minAvailable: 1
