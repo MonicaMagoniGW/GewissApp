@@ -25,6 +25,23 @@
           "type": "integer",
           "minimum": 1
         },
+        "namespace": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "create": {
+              "type": "boolean"
+            },
+            "labels": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "annotations": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        },
         "image": {
           "type": "object",
           "additionalProperties": false,
@@ -308,31 +325,44 @@
               ]
             }
           },
-          "oneOf": [
+          "allOf": [
             {
-              "properties": {
-                "minAvailable": {
-                  "type": [
-                    "integer",
-                    "string"
-                  ]
-                },
-                "maxUnavailable": {
-                  "type": "null"
+              "if": {
+                "properties": {
+                  "enabled": {
+                    "const": true
+                  }
                 }
-              }
-            },
-            {
-              "properties": {
-                "minAvailable": {
-                  "type": "null"
-                },
-                "maxUnavailable": {
-                  "type": [
-                    "integer",
-                    "string"
-                  ]
-                }
+              },
+              "then": {
+                "oneOf": [
+                  {
+                    "properties": {
+                      "minAvailable": {
+                        "type": [
+                          "integer",
+                          "string"
+                        ]
+                      },
+                      "maxUnavailable": {
+                        "type": "null"
+                      }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "minAvailable": {
+                        "type": "null"
+                      },
+                      "maxUnavailable": {
+                        "type": [
+                          "integer",
+                          "string"
+                        ]
+                      }
+                    }
+                  }
+                ]
               }
             }
           ]

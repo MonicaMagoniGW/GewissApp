@@ -133,10 +133,12 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.app.topologySpreadConstraints }}
       topologySpreadConstraints:
-        - maxSkew: {{ ((.Values.app.topologySpreadConstraints).maxSkew) | default 1 }}
-          topologyKey: {{ ((.Values.app.topologySpreadConstraints).topologyKey) | default "kubernetes.io/hostname" }}
-          whenUnsatisfiable: {{ ((.Values.app.topologySpreadConstraints).whenUnsatisfiable) | default "ScheduleAnyway" }}
+        - maxSkew: {{ .Values.app.topologySpreadConstraints.maxSkew }}
+          topologyKey: {{ .Values.app.topologySpreadConstraints.topologyKey }}
+          whenUnsatisfiable: {{ .Values.app.topologySpreadConstraints.whenUnsatisfiable }}
           labelSelector:
             matchLabels:
               {{- include "gwapp.selectorLabels" . | nindent 14 }}
+      {{- end }}

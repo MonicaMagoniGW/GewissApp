@@ -78,7 +78,7 @@ app:
 
 | Key | Type | Default | Description |
 | --- | --- | --- | --- |
-| `app.replicaCount` | `integer` | `2` | Number of pod replicas (ignored when autoscaling is enabled). |
+| `app.replicaCount` | `integer` | `1` | Number of pod replicas (ignored when autoscaling is enabled). |
 | `app.revisionHistoryLimit` | `integer` | `3` | Number of old ReplicaSets to retain. |
 | `app.containerPort` | `integer` | `8080` | Container port exposed by the application. |
 | `app.command` | `array` | `[]` | Override container entrypoint. |
@@ -93,7 +93,7 @@ app:
 | `app.image.repository` | `string` | `nginx` | Container image repository. |
 | `app.image.tag` | `string` | `""` | Image tag; defaults to chart `appVersion` when empty. |
 | `app.image.pullPolicy` | `string` | `IfNotPresent` | Image pull policy (`Always`, `IfNotPresent`, `Never`). |
-| `app.image.pullSecrets` | `array` | `["gewissit-pull"]` | List of image pull secret names. |
+| `app.image.pullSecrets` | `array` | `[]` | List of image pull secret names. |
 
 ### ServiceAccount
 
