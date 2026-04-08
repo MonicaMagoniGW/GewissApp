@@ -1,7 +1,7 @@
-{{- if and (not .Values.app.configMap.enabled) (or .Values.app.configMap.envFrom .Values.app.configMap.mount.enabled) -}}
+{{- if and .Values.app.configMap (not .Values.app.configMap.enabled) (or .Values.app.configMap.envFrom (and .Values.app.configMap.mount .Values.app.configMap.mount.enabled)) -}}
 {{- fail "app.configMap.envFrom and app.configMap.mount.enabled require app.configMap.enabled=true" -}}
 {{- end -}}
 
-{{- if gt .Values.app.autoscaling.minReplicas .Values.app.autoscaling.maxReplicas -}}
+{{- if and .Values.app.autoscaling .Values.app.autoscaling.enabled (gt .Values.app.autoscaling.minReplicas .Values.app.autoscaling.maxReplicas) -}}
 {{- fail "app.autoscaling.minReplicas cannot be greater than app.autoscaling.maxReplicas" -}}
 {{- end -}}

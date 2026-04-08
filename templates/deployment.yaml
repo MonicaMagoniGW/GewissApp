@@ -10,7 +10,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if not .Values.app.autoscaling.enabled }}
+  {{- if not (and .Values.app.autoscaling .Values.app.autoscaling.enabled) }}
   replicas: {{ .Values.app.replicaCount }}
   {{- end }}
   revisionHistoryLimit: {{ .Values.app.revisionHistoryLimit | default 3 }}
@@ -24,9 +24,9 @@ spec:
         {{- with .Values.app.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-      {{- if or .Values.app.configMap.enabled .Values.app.podAnnotations }}
+      {{- if or (and .Values.app.configMap .Values.app.configMap.enabled) .Values.app.podAnnotations }}
       annotations:
-        {{- if .Values.app.configMap.enabled }}
+        {{- if and .Values.app.configMap .Values.app.configMap.enabled }}
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         {{- end }}
         {{- with .Values.app.podAnnotations }}
@@ -35,10 +35,14 @@ spec:
       {{- end }}
     spec:
       serviceAccountName: {{ include "gwapp.serviceAccountName" . }}
-      {{- with .Values.app.image.pullSecrets }}
+      {{- if .Values.app.image.pullSecrets }}
       imagePullSecrets:
-        {{- range . }}
+        {{- if kindIs "string" .Values.app.image.pullSecrets }}
+        - name: {{ .Values.app.image.pullSecrets }}
+        {{- else }}
+        {{- range .Values.app.image.pullSecrets }}
         - name: {{ . }}
+        {{- end }}
         {{- end }}
       {{- end }}
       {{- with .Values.app.podSecurityContext }}
@@ -65,12 +69,12 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if or .Values.app.configMap.mount.enabled .Values.app.volumeMounts }}
+          {{- if or (and .Values.app.configMap .Values.app.configMap.mount .Values.app.configMap.mount.enabled) .Values.app.volumeMounts }}
           volumeMounts:
-            {{- if .Values.app.configMap.mount.enabled }}
+            {{- if and .Values.app.configMap .Values.app.configMap.mount .Values.app.configMap.mount.enabled }}
             - name: app-config
-              mountPath: {{ .Values.app.configMap.mount.path }}
-              readOnly: {{ .Values.app.configMap.mount.readOnly }}
+              mountPath: {{ .Values.app.configMap.mount.path | default "/config" }}
+              readOnly: {{ .Values.app.configMap.mount.readOnly | default true }}
             {{- end }}
             {{- with .Values.app.volumeMounts }}
             {{- toYaml . | nindent 12 }}
@@ -80,9 +84,9 @@ spec:
           env:
             {{- toYaml .Values.app.env | nindent 12 }}
           {{- end }}
-          {{- if or .Values.app.configMap.envFrom .Values.app.envFrom }}
+          {{- if or (and .Values.app.configMap .Values.app.configMap.envFrom) .Values.app.envFrom }}
           envFrom:
-            {{- if .Values.app.configMap.envFrom }}
+            {{- if and .Values.app.configMap .Values.app.configMap.envFrom }}
             - configMapRef:
                 name: {{ include "gwapp.configMapName" . }}
             {{- end }}
@@ -90,25 +94,25 @@ spec:
             {{- toYaml . | nindent 12 }}
             {{- end }}
           {{- end }}
-          {{- with .Values.app.probes.liveness }}
+          {{- if and .Values.app.probes .Values.app.probes.liveness }}
           livenessProbe:
-            {{- toYaml . | nindent 12 }}
+            {{- toYaml .Values.app.probes.liveness | nindent 12 }}
           {{- end }}
-          {{- with .Values.app.probes.readiness }}
+          {{- if and .Values.app.probes .Values.app.probes.readiness }}
           readinessProbe:
-            {{- toYaml . | nindent 12 }}
+            {{- toYaml .Values.app.probes.readiness | nindent 12 }}
           {{- end }}
-          {{- with .Values.app.probes.startup }}
+          {{- if and .Values.app.probes .Values.app.probes.startup }}
           startupProbe:
-            {{- toYaml . | nindent 12 }}
+            {{- toYaml .Values.app.probes.startup | nindent 12 }}
           {{- end }}
           {{- with .Values.app.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- if or .Values.app.configMap.mount.enabled .Values.app.volumes }}
+      {{- if or (and .Values.app.configMap .Values.app.configMap.mount .Values.app.configMap.mount.enabled) .Values.app.volumes }}
       volumes:
-        {{- if .Values.app.configMap.mount.enabled }}
+        {{- if and .Values.app.configMap .Values.app.configMap.mount .Values.app.configMap.mount.enabled }}
         - name: app-config
           configMap:
             name: {{ include "gwapp.configMapName" . }}
@@ -130,9 +134,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       topologySpreadConstraints:
-        - maxSkew: {{ .Values.app.topologySpreadConstraints.maxSkew | default 1 }}
-          topologyKey: {{ .Values.app.topologySpreadConstraints.topologyKey | default "kubernetes.io/hostname" }}
-          whenUnsatisfiable: {{ .Values.app.topologySpreadConstraints.whenUnsatisfiable | default "ScheduleAnyway" }}
+        - maxSkew: {{ ((.Values.app.topologySpreadConstraints).maxSkew) | default 1 }}
+          topologyKey: {{ ((.Values.app.topologySpreadConstraints).topologyKey) | default "kubernetes.io/hostname" }}
+          whenUnsatisfiable: {{ ((.Values.app.topologySpreadConstraints).whenUnsatisfiable) | default "ScheduleAnyway" }}
           labelSelector:
             matchLabels:
               {{- include "gwapp.selectorLabels" . | nindent 14 }}

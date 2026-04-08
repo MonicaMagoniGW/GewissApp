@@ -18,30 +18,7 @@
       "required": [
         "replicaCount",
         "image",
-        "revisionHistoryLimit",
-        "deploymentAnnotations",
-        "podAnnotations",
-        "podLabels",
-        "serviceAccount",
-        "podSecurityContext",
-        "securityContext",
-        "command",
-        "args",
-        "containerPort",
-        "env",
-        "envFrom",
-        "configMap",
-        "service",
-        "resources",
-        "probes",
-        "autoscaling",
-        "pdb",
-        "volumes",
-        "volumeMounts",
-        "nodeSelector",
-        "tolerations",
-        "affinity",
-        "topologySpreadConstraints"
+        "containerPort"
       ],
       "properties": {
         "replicaCount": {
@@ -52,10 +29,7 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "repository",
-            "tag",
-            "pullPolicy",
-            "pullSecrets"
+            "repository"
           ],
           "properties": {
             "repository": {
@@ -74,11 +48,19 @@
               ]
             },
             "pullSecrets": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "minLength": 1
-              }
+              "oneOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              ]
             }
           }
         },
@@ -102,9 +84,7 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "create",
-            "annotations",
-            "name"
+            "create"
           ],
           "properties": {
             "create": {
@@ -162,12 +142,7 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "enabled",
-            "annotations",
-            "data",
-            "binaryData",
-            "envFrom",
-            "mount"
+            "enabled"
           ],
           "properties": {
             "enabled": {
@@ -196,9 +171,7 @@
               "type": "object",
               "additionalProperties": false,
               "required": [
-                "enabled",
-                "path",
-                "readOnly"
+                "enabled"
               ],
               "properties": {
                 "enabled": {
@@ -219,11 +192,7 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "enabled",
-            "annotations",
-            "type",
-            "port",
-            "targetPort"
+            "enabled"
           ],
           "properties": {
             "enabled": {
@@ -268,11 +237,6 @@
         "probes": {
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "liveness",
-            "readiness",
-            "startup"
-          ],
           "properties": {
             "liveness": {
               "type": "object",
@@ -292,11 +256,7 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "enabled",
-            "minReplicas",
-            "maxReplicas",
-            "targetCPUUtilizationPercentage",
-            "targetMemoryUtilizationPercentage"
+            "enabled"
           ],
           "properties": {
             "enabled": {
@@ -327,9 +287,7 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "enabled",
-            "minAvailable",
-            "maxUnavailable"
+            "enabled"
           ],
           "properties": {
             "enabled": {
