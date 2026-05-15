@@ -35,6 +35,20 @@ app:
     port: 80
     targetPort: http
 
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts: []
+    #  - host: example.local
+    #    paths:
+    #      - path: /
+    #        pathType: Prefix
+    tls: []
+    #  - secretName: example-tls
+    #    hosts:
+    #      - example.local
+
   configMap:
     enabled: false
     annotations: {}
