@@ -479,6 +479,59 @@
               "enum": ["DoNotSchedule", "ScheduleAnyway"]
             }
           }
+        },
+        "strategy": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "terminationGracePeriodSeconds": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "initContainers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "extraContainers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "persistence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled"],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "accessModes": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"]
+              }
+            },
+            "storageClassName": {
+              "type": "string"
+            },
+            "size": {
+              "type": "string"
+            },
+            "mountPath": {
+              "type": "string",
+              "minLength": 1
+            },
+            "annotations": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
         }
       }
     }

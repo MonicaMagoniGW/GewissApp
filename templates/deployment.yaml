@@ -14,6 +14,10 @@ spec:
   replicas: {{ .Values.app.replicaCount }}
   {{- end }}
   revisionHistoryLimit: {{ .Values.app.revisionHistoryLimit | default 3 }}
+  {{- with .Values.app.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "gwapp.selectorLabels" . | nindent 6 }}
@@ -49,6 +53,13 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.app.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.app.terminationGracePeriodSeconds }}
+      {{- end }}
+      {{- with .Values.app.initContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: {{ include "gwapp.name" . }}
           image: {{ include "gwapp.image" . }}
@@ -69,12 +80,16 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if or (and .Values.app.configMap .Values.app.configMap.mount .Values.app.configMap.mount.enabled) .Values.app.volumeMounts }}
+          {{- if or (and .Values.app.configMap .Values.app.configMap.mount .Values.app.configMap.mount.enabled) (and .Values.app.persistence .Values.app.persistence.enabled) .Values.app.volumeMounts }}
           volumeMounts:
             {{- if and .Values.app.configMap .Values.app.configMap.mount .Values.app.configMap.mount.enabled }}
             - name: app-config
               mountPath: {{ .Values.app.configMap.mount.path | default "/config" }}
               readOnly: {{ .Values.app.configMap.mount.readOnly | default true }}
+            {{- end }}
+            {{- if and .Values.app.persistence .Values.app.persistence.enabled }}
+            - name: app-storage
+              mountPath: {{ .Values.app.persistence.mountPath | default "/data" }}
             {{- end }}
             {{- with .Values.app.volumeMounts }}
             {{- toYaml . | nindent 12 }}
@@ -110,12 +125,20 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- if or (and .Values.app.configMap .Values.app.configMap.mount .Values.app.configMap.mount.enabled) .Values.app.volumes }}
+      {{- with .Values.app.extraContainers }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if or (and .Values.app.configMap .Values.app.configMap.mount .Values.app.configMap.mount.enabled) (and .Values.app.persistence .Values.app.persistence.enabled) .Values.app.volumes }}
       volumes:
         {{- if and .Values.app.configMap .Values.app.configMap.mount .Values.app.configMap.mount.enabled }}
         - name: app-config
           configMap:
             name: {{ include "gwapp.configMapName" . }}
+        {{- end }}
+        {{- if and .Values.app.persistence .Values.app.persistence.enabled }}
+        - name: app-storage
+          persistentVolumeClaim:
+            claimName: {{ include "gwapp.fullname" . }}-storage
         {{- end }}
         {{- with .Values.app.volumes }}
         {{- toYaml . | nindent 8 }}

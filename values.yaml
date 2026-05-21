@@ -86,3 +86,26 @@ app:
     maxSkew: 1
     topologyKey: kubernetes.io/hostname
     whenUnsatisfiable: ScheduleAnyway
+
+  # -- Deployment strategy (e.g. Recreate, RollingUpdate).
+  strategy: {}
+  #  type: Recreate
+
+  # -- Termination grace period in seconds for the pod.
+  terminationGracePeriodSeconds: null
+
+  # -- Init containers to run before the main container.
+  initContainers: []
+
+  # -- Extra sidecar containers to run alongside the main container.
+  extraContainers: []
+
+  # -- Persistent volume claim for the application.
+  persistence:
+    enabled: false
+    accessModes:
+      - ReadWriteOnce
+    storageClassName: ""
+    size: 5Gi
+    mountPath: /data
+    annotations: {}
