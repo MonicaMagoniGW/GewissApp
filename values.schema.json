@@ -23,7 +23,7 @@
       "properties": {
         "replicaCount": {
           "type": "integer",
-          "minimum": 1
+          "minimum": 0
         },
         "namespace": {
           "type": "object",
