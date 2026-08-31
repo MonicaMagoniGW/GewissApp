@@ -100,6 +100,9 @@ app:
   # -- Extra sidecar containers to run alongside the main container.
   extraContainers: []
 
+  # -- Container lifecycle handlers (Kubernetes lifecycle syntax).
+  lifecycle: {}
+
   # -- Persistent volume claim for the application.
   persistence:
     enabled: false

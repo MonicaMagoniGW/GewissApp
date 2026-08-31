@@ -136,6 +136,10 @@
             "type": "string"
           }
         },
+        "lifecycle": {
+          "type": "object",
+          "additionalProperties": true
+        },
         "containerPort": {
           "type": "integer",
           "minimum": 1,

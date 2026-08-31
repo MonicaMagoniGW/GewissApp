@@ -83,6 +83,7 @@ app:
 | `app.containerPort` | `integer` | `8080` | Container port exposed by the application. |
 | `app.command` | `array` | `[]` | Override container entrypoint. |
 | `app.args` | `array` | `[]` | Override container arguments. |
+| `app.lifecycle` | `object` | `{}` | Container lifecycle handlers (Kubernetes lifecycle syntax). |
 | `app.env` | `array` | `[]` | Extra environment variables (Kubernetes `env` syntax). |
 | `app.envFrom` | `array` | `[]` | Extra `envFrom` sources (e.g. `secretRef`, `configMapRef`). |
 

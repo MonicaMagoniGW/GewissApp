@@ -76,6 +76,10 @@ spec:
           args:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- with .Values.app.lifecycle }}
+          lifecycle:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.app.securityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}
